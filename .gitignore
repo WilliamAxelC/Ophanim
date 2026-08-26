@@ -1,0 +1,29 @@
+# Binaries
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Data & SQLite
+data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Node / Web Build
+web/node_modules/
+web/dist/
+web/.vite/
+
+# Temp & Logs
+*.log
+scratch/
+tmp/
+.playwright-mcp/
+HANDOFF.md
+*.handoff.md
+/*.png
+.DS_Store
+Thumbs.db
