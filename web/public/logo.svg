@@ -1,0 +1,221 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <!-- Background Radial Glow -->
+    <radialGradient id="ophGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.3"/>
+      <stop offset="50%" stop-color="#ef4444" stop-opacity="0.15"/>
+      <stop offset="80%" stop-color="#38bdf8" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#050814" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Flame Crown Gradient -->
+    <linearGradient id="flameGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="50%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#e11d48"/>
+    </linearGradient>
+
+    <!-- Wheel Band Gradients -->
+    <linearGradient id="wheelGradA" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fed7aa"/>
+      <stop offset="40%" stop-color="#fde047"/>
+      <stop offset="80%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+
+    <linearGradient id="wheelGradB" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#9a3412"/>
+    </linearGradient>
+
+    <linearGradient id="wheelInnerA" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#78350f"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+
+    <!-- Central Iris Gradient -->
+    <radialGradient id="irisGrad" cx="40%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#67e8f9"/>
+      <stop offset="60%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </radialGradient>
+
+    <!-- Outer Rim Stroke Shadow -->
+    <filter id="flameBlur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Ambient Glow -->
+  <circle cx="256" cy="256" r="230" fill="url(#ophGlow)"/>
+
+  <!-- ==================== LAYER 1: OUTER RADIANT FLAME HALO ==================== -->
+  <!-- Fiery radiant spikes surrounding the two crossing wheels -->
+  <path d="
+    M 256 32 
+    L 272 58 L 296 42 L 306 70 L 334 60 L 338 88 L 368 84 L 366 114 L 396 116 L 388 144 L 418 152 L 404 180 L 432 194 L 412 220 L 436 240 L 412 256 L 436 272 L 412 292 L 432 318 L 404 332 L 418 360 L 388 368 L 396 396 L 366 398 L 368 428 L 338 424 L 334 452 L 306 442 L 296 470 L 272 454 L 256 480
+    L 240 454 L 216 470 L 206 442 L 178 452 L 174 424 L 144 428 L 146 398 L 116 396 L 124 368 L 94 360 L 108 332 L 80 318 L 100 292 L 76 272 L 100 256 L 76 240 L 100 220 L 80 194 L 108 180 L 94 152 L 124 144 L 116 116 L 146 114 L 144 84 L 174 88 L 178 60 L 206 70 L 216 42 L 240 58 Z
+  " fill="url(#flameGrad)" stroke="#e11d48" stroke-width="4" stroke-linejoin="round" opacity="0.95" filter="url(#flameBlur)"/>
+
+  <!-- Inner Flame Ridge Highlight -->
+  <path d="
+    M 256 50 
+    L 270 72 L 292 58 L 300 82 L 324 74 L 328 98 L 354 94 L 352 120 L 378 122 L 370 146 L 396 154 L 384 178 L 408 190 L 390 214 L 412 232 L 390 246 L 412 260 L 390 278 L 408 302 L 384 314 L 396 338 L 370 346 L 378 370 L 352 372 L 354 398 L 328 394 L 324 418 L 300 410 L 292 434 L 270 420 L 256 442
+    L 242 420 L 220 434 L 212 410 L 188 418 L 184 394 L 158 398 L 160 372 L 134 370 L 142 346 L 116 338 L 128 314 L 104 302 L 122 278 L 100 260 L 122 246 L 100 232 L 122 214 L 104 190 L 128 178 L 116 154 L 142 146 L 134 122 L 160 120 L 158 94 L 184 98 L 188 74 L 212 82 L 220 58 L 242 72 Z
+  " fill="#fef08a" opacity="0.6"/>
+
+  <!-- ==================== LAYER 2: BACK WHEEL BAND (Tilted -35 deg) ==================== -->
+  <g transform="rotate(-35 256 256)">
+    <!-- Outer rim -->
+    <ellipse cx="256" cy="256" rx="190" ry="85" fill="none" stroke="#78350f" stroke-width="36"/>
+    <!-- Face ribbon -->
+    <ellipse cx="256" cy="256" rx="190" ry="85" fill="none" stroke="url(#wheelGradB)" stroke-width="30"/>
+    <!-- Outer / inner stroke lines -->
+    <ellipse cx="256" cy="256" rx="205" ry="100" fill="none" stroke="#451a03" stroke-width="3.5"/>
+    <ellipse cx="256" cy="256" rx="175" ry="70" fill="none" stroke="#451a03" stroke-width="3.5"/>
+
+    <!-- Eyes on Band B (Back/Upper segment) -->
+    <!-- Far Left -->
+    <g transform="translate(75, 256) rotate(-90)">
+      <path d="M-18 0 Q0 -11 18 0 Q0 11 -18 0 Z" fill="#fffbeb" stroke="#881337" stroke-width="2.5"/>
+      <circle cx="0" cy="0" r="5" fill="#e11d48"/>
+      <circle cx="0" cy="0" r="2" fill="#1e1b4b"/>
+    </g>
+    <!-- Top-Left-Mid -->
+    <g transform="translate(130, 205) rotate(-45)">
+      <path d="M-16 0 Q0 -10 16 0 Q0 10 -16 0 Z" fill="#fffbeb" stroke="#881337" stroke-width="2.5"/>
+      <circle cx="0" cy="0" r="4.5" fill="#e11d48"/>
+      <circle cx="0" cy="0" r="1.8" fill="#1e1b4b"/>
+    </g>
+    <!-- Top-Center -->
+    <g transform="translate(256, 171)">
+      <path d="M-18 0 Q0 -11 18 0 Q0 11 -18 0 Z" fill="#fffbeb" stroke="#881337" stroke-width="2.5"/>
+      <circle cx="0" cy="0" r="5" fill="#e11d48"/>
+      <circle cx="0" cy="0" r="2" fill="#1e1b4b"/>
+    </g>
+    <!-- Top-Right-Mid -->
+    <g transform="translate(382, 205) rotate(45)">
+      <path d="M-16 0 Q0 -10 16 0 Q0 10 -16 0 Z" fill="#fffbeb" stroke="#881337" stroke-width="2.5"/>
+      <circle cx="0" cy="0" r="4.5" fill="#e11d48"/>
+      <circle cx="0" cy="0" r="1.8" fill="#1e1b4b"/>
+    </g>
+    <!-- Far Right -->
+    <g transform="translate(437, 256) rotate(90)">
+      <path d="M-18 0 Q0 -11 18 0 Q0 11 -18 0 Z" fill="#fffbeb" stroke="#881337" stroke-width="2.5"/>
+      <circle cx="0" cy="0" r="5" fill="#e11d48"/>
+      <circle cx="0" cy="0" r="2" fill="#1e1b4b"/>
+    </g>
+  </g>
+
+  <!-- ==================== LAYER 3: VERTICAL INNER GYRO RING ==================== -->
+  <g>
+    <ellipse cx="256" cy="256" rx="60" ry="175" fill="none" stroke="#78350f" stroke-width="24"/>
+    <ellipse cx="256" cy="256" rx="60" ry="175" fill="none" stroke="url(#wheelGradA)" stroke-width="18"/>
+    <ellipse cx="256" cy="256" rx="69" ry="184" fill="none" stroke="#451a03" stroke-width="2.5"/>
+    <ellipse cx="256" cy="256" rx="51" ry="166" fill="none" stroke="#451a03" stroke-width="2.5"/>
+
+    <!-- Eyes on Vertical Ring -->
+    <!-- Top -->
+    <g transform="translate(256, 95)">
+      <path d="M-16 0 Q0 -10 16 0 Q0 10 -16 0 Z" fill="#fffbeb" stroke="#881337" stroke-width="2.5"/>
+      <circle cx="0" cy="0" r="4.5" fill="#e11d48"/>
+      <circle cx="0" cy="0" r="1.8" fill="#1e1b4b"/>
+    </g>
+    <!-- Bottom -->
+    <g transform="translate(256, 417)">
+      <path d="M-16 0 Q0 -10 16 0 Q0 10 -16 0 Z" fill="#fffbeb" stroke="#881337" stroke-width="2.5"/>
+      <circle cx="0" cy="0" r="4.5" fill="#e11d48"/>
+      <circle cx="0" cy="0" r="1.8" fill="#1e1b4b"/>
+    </g>
+  </g>
+
+  <!-- ==================== LAYER 4: FRONT MAIN WHEEL BAND (Tilted +35 deg) ==================== -->
+  <g transform="rotate(35 256 256)">
+    <!-- Outer rim background & thickness -->
+    <ellipse cx="256" cy="256" rx="190" ry="85" fill="none" stroke="#78350f" stroke-width="36"/>
+    <!-- Face ribbon -->
+    <ellipse cx="256" cy="256" rx="190" ry="85" fill="none" stroke="url(#wheelGradA)" stroke-width="30"/>
+    <!-- Outer / inner dark boundary lines -->
+    <ellipse cx="256" cy="256" rx="205" ry="100" fill="none" stroke="#451a03" stroke-width="3.5"/>
+    <ellipse cx="256" cy="256" rx="175" ry="70" fill="none" stroke="#451a03" stroke-width="3.5"/>
+
+    <!-- Eyes along the entire perimeter of Band A -->
+    <!-- Far Left -->
+    <g transform="translate(75, 256) rotate(-90)">
+      <path d="M-18 0 Q0 -11 18 0 Q0 11 -18 0 Z" fill="#fffbeb" stroke="#881337" stroke-width="2.5"/>
+      <circle cx="0" cy="0" r="5" fill="#e11d48"/>
+      <circle cx="0" cy="0" r="2" fill="#1e1b4b"/>
+    </g>
+    <!-- Top-Left -->
+    <g transform="translate(130, 205) rotate(-45)">
+      <path d="M-16 0 Q0 -10 16 0 Q0 10 -16 0 Z" fill="#fffbeb" stroke="#881337" stroke-width="2.5"/>
+      <circle cx="0" cy="0" r="4.5" fill="#e11d48"/>
+      <circle cx="0" cy="0" r="1.8" fill="#1e1b4b"/>
+    </g>
+    <!-- Top-Center -->
+    <g transform="translate(256, 171)">
+      <path d="M-18 0 Q0 -11 18 0 Q0 11 -18 0 Z" fill="#fffbeb" stroke="#881337" stroke-width="2.5"/>
+      <circle cx="0" cy="0" r="5" fill="#e11d48"/>
+      <circle cx="0" cy="0" r="2" fill="#1e1b4b"/>
+    </g>
+    <!-- Top-Right -->
+    <g transform="translate(382, 205) rotate(45)">
+      <path d="M-16 0 Q0 -10 16 0 Q0 10 -16 0 Z" fill="#fffbeb" stroke="#881337" stroke-width="2.5"/>
+      <circle cx="0" cy="0" r="4.5" fill="#e11d48"/>
+      <circle cx="0" cy="0" r="1.8" fill="#1e1b4b"/>
+    </g>
+    <!-- Far Right -->
+    <g transform="translate(437, 256) rotate(90)">
+      <path d="M-18 0 Q0 -11 18 0 Q0 11 -18 0 Z" fill="#fffbeb" stroke="#881337" stroke-width="2.5"/>
+      <circle cx="0" cy="0" r="5" fill="#e11d48"/>
+      <circle cx="0" cy="0" r="2" fill="#1e1b4b"/>
+    </g>
+    <!-- Bottom-Right -->
+    <g transform="translate(382, 307) rotate(-45)">
+      <path d="M-16 0 Q0 -10 16 0 Q0 10 -16 0 Z" fill="#fffbeb" stroke="#881337" stroke-width="2.5"/>
+      <circle cx="0" cy="0" r="4.5" fill="#e11d48"/>
+      <circle cx="0" cy="0" r="1.8" fill="#1e1b4b"/>
+    </g>
+    <!-- Bottom-Center -->
+    <g transform="translate(256, 341)">
+      <path d="M-18 0 Q0 -11 18 0 Q0 11 -18 0 Z" fill="#fffbeb" stroke="#881337" stroke-width="2.5"/>
+      <circle cx="0" cy="0" r="5" fill="#e11d48"/>
+      <circle cx="0" cy="0" r="2" fill="#1e1b4b"/>
+    </g>
+    <!-- Bottom-Left -->
+    <g transform="translate(130, 307) rotate(45)">
+      <path d="M-16 0 Q0 -10 16 0 Q0 10 -16 0 Z" fill="#fffbeb" stroke="#881337" stroke-width="2.5"/>
+      <circle cx="0" cy="0" r="4.5" fill="#e11d48"/>
+      <circle cx="0" cy="0" r="1.8" fill="#1e1b4b"/>
+    </g>
+  </g>
+
+  <!-- ==================== LAYER 5: CENTRAL ALL-SEEING OCULUS (The Core Eye) ==================== -->
+  <g>
+    <!-- Outer Core Halo Shadow -->
+    <circle cx="256" cy="256" r="52" fill="#18181b" stroke="#78350f" stroke-width="4"/>
+    <circle cx="256" cy="256" r="48" fill="#fffbeb" stroke="#451a03" stroke-width="3"/>
+
+    <!-- Central Sclera & Eyelids (Almond Aperture) -->
+    <path d="M 204 256 Q 256 200 308 256 Q 256 312 204 256 Z" fill="#ffffff" stroke="#881337" stroke-width="4"/>
+
+    <!-- Deep Luminous Cyan/Sky Iris (The Observability Light) -->
+    <circle cx="256" cy="256" r="26" fill="url(#irisGrad)" stroke="#0284c7" stroke-width="2"/>
+    
+    <!-- Radiant Iris Ray Notches -->
+    <circle cx="256" cy="256" r="20" fill="none" stroke="#bae6fd" stroke-width="2" stroke-dasharray="4 3"/>
+
+    <!-- Deep Cosmic Pupil (Crescent / Eclipse Style from reference) -->
+    <circle cx="256" cy="256" r="13" fill="#881337"/>
+    <circle cx="259" cy="256" r="10" fill="#030712"/>
+
+    <!-- Specular Sparkle Highlights -->
+    <circle cx="249" cy="248" r="4" fill="#ffffff"/>
+    <circle cx="261" cy="259" r="2" fill="#ffffff" opacity="0.8"/>
+  </g>
+</svg>
