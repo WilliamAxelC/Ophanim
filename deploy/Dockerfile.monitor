@@ -1,0 +1,11 @@
+# Security-Hardened Edge Probe Image for Ophanim-Monitor
+FROM alpine:3.20
+
+RUN apk add --no-cache ca-certificates tzdata
+
+WORKDIR /app
+
+COPY bin/ophanim-monitor /usr/local/bin/ophanim-monitor
+RUN chmod 0755 /usr/local/bin/ophanim-monitor
+
+ENTRYPOINT ["/usr/local/bin/ophanim-monitor"]

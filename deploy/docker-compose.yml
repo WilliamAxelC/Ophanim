@@ -1,0 +1,16 @@
+services:
+  ophanim:
+    image: ophanim:latest
+    container_name: ophanim
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ophanim-data:/data
+    environment:
+      - OPHANIM_CONFIG=/data/config.yaml
+      - OPHANIM_DB_PATH=/data/ophanim.db
+      - TZ=Asia/Jakarta
+
+volumes:
+  ophanim-data:

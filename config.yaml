@@ -1,0 +1,49 @@
+hub:
+    listen_addr: 0.0.0.0
+    port: 8080
+    secret_token: ""
+    poll_interval: 10s
+    retention_days: 30
+    enable_zero_config: true
+storage:
+    db_path: data/ophanim.db
+    ring_buffer_lines: 1000
+llm:
+    enabled: false
+    provider: gemini
+    api_key: ""
+    endpoint: ""
+    model: gemini-2.5-flash
+    temperature: 0.2
+    max_tokens: 2048
+chatops:
+    discord:
+        enabled: false
+        bot_token: ""
+        alert_channel_id: ""
+        admin_role_id: ""
+    telegram:
+        enabled: false
+        bot_token: ""
+        chat_id: 0
+    webhooks: []
+thresholds:
+    cpu_warning_percent: 80
+    cpu_critical_percent: 95
+    memory_warning_percent: 85
+    memory_critical_percent: 95
+    disk_warning_percent: 80
+    disk_critical_percent: 92
+    ssl_expiry_warning_days: 14
+    auto_heal_max_per_hour: 2
+    anti_flap_window: 5m0s
+nodes:
+    - id: local-lxc
+      name: Homelab LXC (Local)
+      host: unix:///var/run/docker.sock
+      docker_socket: /var/run/docker.sock
+      auto_heal: true
+proxmox: []
+snmp: []
+synthetic: []
+prometheus: []

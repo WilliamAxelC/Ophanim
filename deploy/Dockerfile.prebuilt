@@ -1,0 +1,21 @@
+# Security-Hardened Production Image for Ophanim Hub
+FROM alpine:3.20
+
+RUN apk add --no-cache ca-certificates tzdata && \
+    addgroup -g 10001 -S ophanim && \
+    adduser -u 10001 -S ophanim -G ophanim && \
+    mkdir -p /data /etc/ophanim && \
+    chown -R ophanim:ophanim /data /etc/ophanim
+
+WORKDIR /app
+
+COPY --chown=root:root bin/ophanim /usr/local/bin/ophanim
+COPY --chown=root:root bin/ophanim-monitor /usr/local/bin/ophanim-monitor
+
+RUN chmod 0755 /usr/local/bin/ophanim /usr/local/bin/ophanim-monitor
+
+EXPOSE 8085
+VOLUME ["/data", "/etc/ophanim"]
+
+ENTRYPOINT ["/usr/local/bin/ophanim"]
+CMD ["--config", "/data/config.yaml", "--db", "/data/ophanim.db", "--port", "8085"]
