@@ -219,6 +219,10 @@ func (h *Hub) registerClient(client *EdgeClient) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	h.clients[client.NodeID] = client
+	if client.NodeID != "" && h.storage != nil {
+		h.storage.PushLog("system", client.NodeID, "INFO", fmt.Sprintf("✅ System / Node '%s' connected via edge monitor WebSocket stream", client.NodeID))
+		h.storage.PushLog("ophanim", "local", "INFO", fmt.Sprintf("✅ System / Node '%s' connected via edge monitor WebSocket stream", client.NodeID))
+	}
 }
 
 func (h *Hub) unregisterClient(client *EdgeClient) {
@@ -226,13 +230,17 @@ func (h *Hub) unregisterClient(client *EdgeClient) {
 	defer h.mu.Unlock()
 	if client.NodeID != "" {
 		delete(h.clients, client.NodeID)
-		_ = h.storage.EnrollDevice(&types.DeviceNode{
-			ID:        client.NodeID,
-			Name:      client.NodeID,
-			AgentType: "ophanim-monitor",
-			Status:    "offline",
-			LastSeen:  time.Now(),
-		})
+		if h.storage != nil {
+			_ = h.storage.EnrollDevice(&types.DeviceNode{
+				ID:        client.NodeID,
+				Name:      client.NodeID,
+				AgentType: "ophanim-monitor",
+				Status:    "offline",
+				LastSeen:  time.Now(),
+			})
+			h.storage.PushLog("system", client.NodeID, "WARN", fmt.Sprintf("⚠️ System / Node '%s' DISCONNECTED / OFFLINE (WebSocket connection closed)", client.NodeID))
+			h.storage.PushLog("ophanim", "local", "WARN", fmt.Sprintf("⚠️ System / Node '%s' DISCONNECTED / OFFLINE (WebSocket connection closed)", client.NodeID))
+		}
 	}
 	close(client.SendChan)
 }

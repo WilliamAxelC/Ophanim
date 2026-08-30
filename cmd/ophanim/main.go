@@ -273,6 +273,8 @@ func main() {
 		pveCollectors := make(map[string]*collector.ProxmoxCollector)
 		wrtCollectors := make(map[string]*collector.OpenWRTCollector)
 		snmpCollectors := make(map[string]*collector.SNMPCollector)
+		nodeStatusMap := make(map[string]string)
+		nodeFailCount := make(map[string]int)
 
 		for {
 			select {
@@ -289,9 +291,33 @@ func main() {
 					}
 				}
 
-				// 2. Collect Enrolled Devices (Proxmox, OpenWRT, SNMP)
+				// 2. Collect Enrolled Devices (Proxmox, OpenWRT, SNMP, and Edge Probes)
 				devices, _ := store.ListDevices()
 				for _, dev := range devices {
+					// Check Edge Monitor probes for heartbeat timeouts
+					if strings.EqualFold(dev.AgentType, "ophanim-monitor") || strings.EqualFold(dev.AgentType, "agent") {
+						if dev.Status == "online" && time.Since(dev.LastSeen) > 45*time.Second {
+							prev := nodeStatusMap[dev.ID]
+							nodeStatusMap[dev.ID] = "offline"
+							_ = store.UpdateDeviceStatus(dev.ID, "offline")
+							if prev != "offline" {
+								msg := fmt.Sprintf("⚠️ System / Node '%s' DISCONNECTED / OFFLINE (heartbeat missed >45s)", dev.Name)
+								store.PushLog("system", dev.ID, "WARN", msg)
+								store.PushLog("ophanim", "local", "WARN", msg)
+								log.Printf("[Ophanim Node Status] %s", msg)
+							}
+						} else if dev.Status == "online" {
+							if nodeStatusMap[dev.ID] != "online" && nodeStatusMap[dev.ID] != "" {
+								msg := fmt.Sprintf("✅ System / Node '%s' is back ONLINE (heartbeat received)", dev.Name)
+								store.PushLog("system", dev.ID, "INFO", msg)
+								store.PushLog("ophanim", "local", "INFO", msg)
+								log.Printf("[Ophanim Node Status] %s", msg)
+							}
+							nodeStatusMap[dev.ID] = "online"
+						}
+					}
+
+					// Collect Enrolled Proxmox VE Hypervisors
 					if strings.EqualFold(dev.AgentType, "proxmox") && (dev.IPAddress != "" || dev.EnrollToken != "") {
 						pveCol, ok := pveCollectors[dev.ID]
 						if !ok {
@@ -301,14 +327,35 @@ func main() {
 							pveCol.UpdateCredentials(dev.IPAddress, "", dev.EnrollToken)
 						}
 						if guests, err := pveCol.CollectGuests(ctx); err == nil && len(guests) > 0 {
+							prev := nodeStatusMap[dev.ID]
+							nodeStatusMap[dev.ID] = "online"
+							nodeFailCount[dev.ID] = 0
 							_ = store.UpdateDeviceStatus(dev.ID, "online")
+							if prev != "online" && prev != "" {
+								msg := fmt.Sprintf("✅ System / Node '%s' (%s) is back ONLINE (Proxmox hypervisor verified)", dev.Name, dev.IPAddress)
+								store.PushLog("system", dev.ID, "INFO", msg)
+								store.PushLog("ophanim", "local", "INFO", msg)
+								log.Printf("[Ophanim Node Status] %s", msg)
+							}
+
 							pveContainers := collector.GuestsToContainers(guests, dev.ID)
 							for _, c := range pveContainers {
 								_ = store.SaveContainer(&c)
 							}
 							corr.ProcessContainers(pveContainers)
 						} else if err != nil {
-							log.Printf("[Ophanim Proxmox] Polling %s (%s) error: %v", dev.Name, dev.IPAddress, err)
+							nodeFailCount[dev.ID]++
+							if nodeFailCount[dev.ID] >= 3 {
+								prev := nodeStatusMap[dev.ID]
+								nodeStatusMap[dev.ID] = "offline"
+								_ = store.UpdateDeviceStatus(dev.ID, "offline")
+								if prev != "offline" {
+									msg := fmt.Sprintf("⚠️ System / Node '%s' (%s) DISCONNECTED / OFFLINE: %v", dev.Name, dev.IPAddress, err)
+									store.PushLog("system", dev.ID, "WARN", msg)
+									store.PushLog("ophanim", "local", "WARN", msg)
+									log.Printf("[Ophanim Node Status] %s", msg)
+								}
+							}
 						}
 
 						// Collect Proxmox physical host hardware metrics (CPU, RAM, Swap, Disk, Load, Network)
@@ -329,7 +376,17 @@ func main() {
 							wrtCollectors[dev.ID] = wrtCol
 						}
 						if hw, services, err := wrtCol.Collect(ctx); err == nil && hw != nil {
+							prev := nodeStatusMap[dev.ID]
+							nodeStatusMap[dev.ID] = "online"
+							nodeFailCount[dev.ID] = 0
 							_ = store.UpdateDeviceStatus(dev.ID, "online")
+							if prev != "online" && prev != "" {
+								msg := fmt.Sprintf("✅ System / Node '%s' (%s) is back ONLINE (OpenWRT gateway verified)", dev.Name, dev.IPAddress)
+								store.PushLog("system", dev.ID, "INFO", msg)
+								store.PushLog("ophanim", "local", "INFO", msg)
+								log.Printf("[Ophanim Node Status] %s", msg)
+							}
+
 							hw.NodeID = dev.ID
 							_ = store.SaveHostMetrics(hw)
 							corr.ProcessHostMetrics(hw)
@@ -338,7 +395,18 @@ func main() {
 							}
 							corr.ProcessContainers(services)
 						} else if err != nil {
-							log.Printf("[Ophanim OpenWRT] Polling %s (%s) error: %v", dev.Name, dev.IPAddress, err)
+							nodeFailCount[dev.ID]++
+							if nodeFailCount[dev.ID] >= 3 {
+								prev := nodeStatusMap[dev.ID]
+								nodeStatusMap[dev.ID] = "offline"
+								_ = store.UpdateDeviceStatus(dev.ID, "offline")
+								if prev != "offline" {
+									msg := fmt.Sprintf("⚠️ System / Node '%s' (%s) DISCONNECTED / OFFLINE: %v", dev.Name, dev.IPAddress, err)
+									store.PushLog("system", dev.ID, "WARN", msg)
+									store.PushLog("ophanim", "local", "WARN", msg)
+									log.Printf("[Ophanim Node Status] %s", msg)
+								}
+							}
 						}
 					}
 
@@ -350,7 +418,17 @@ func main() {
 							snmpCollectors[dev.ID] = snmpCol
 						}
 						if hw, services, err := snmpCol.CollectExtended(ctx); err == nil && hw != nil {
+							prev := nodeStatusMap[dev.ID]
+							nodeStatusMap[dev.ID] = "online"
+							nodeFailCount[dev.ID] = 0
 							_ = store.UpdateDeviceStatus(dev.ID, "online")
+							if prev != "online" && prev != "" {
+								msg := fmt.Sprintf("✅ System / Node '%s' (%s) is back ONLINE (SNMP verified)", dev.Name, dev.IPAddress)
+								store.PushLog("system", dev.ID, "INFO", msg)
+								store.PushLog("ophanim", "local", "INFO", msg)
+								log.Printf("[Ophanim Node Status] %s", msg)
+							}
+
 							hw.NodeID = dev.ID
 							_ = store.SaveHostMetrics(hw)
 							corr.ProcessHostMetrics(hw)
@@ -359,7 +437,18 @@ func main() {
 							}
 							corr.ProcessContainers(services)
 						} else if err != nil {
-							log.Printf("[Ophanim SNMP] Polling %s (%s) error: %v", dev.Name, dev.IPAddress, err)
+							nodeFailCount[dev.ID]++
+							if nodeFailCount[dev.ID] >= 3 {
+								prev := nodeStatusMap[dev.ID]
+								nodeStatusMap[dev.ID] = "offline"
+								_ = store.UpdateDeviceStatus(dev.ID, "offline")
+								if prev != "offline" {
+									msg := fmt.Sprintf("⚠️ System / Node '%s' (%s) DISCONNECTED / OFFLINE: %v", dev.Name, dev.IPAddress, err)
+									store.PushLog("system", dev.ID, "WARN", msg)
+									store.PushLog("ophanim", "local", "WARN", msg)
+									log.Printf("[Ophanim Node Status] %s", msg)
+								}
+							}
 						}
 					}
 				}

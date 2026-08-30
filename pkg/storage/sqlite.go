@@ -1072,21 +1072,36 @@ func (s *Storage) DeleteDevice(id string) error {
 // PushLog records a log entry into the in-memory ring buffer for a given target.
 func (s *Storage) PushLog(source, nodeID, level, message string) {
 	s.ringMu.Lock()
+	defer s.ringMu.Unlock()
+
+	entry := types.LogEntry{
+		Source:    source,
+		NodeID:    nodeID,
+		Level:     level,
+		Message:   message,
+		Timestamp: time.Now(),
+	}
+
 	key := fmt.Sprintf("%s:%s", nodeID, source)
 	rb, exists := s.ringBuffers[key]
 	if !exists {
 		rb = NewRingBuffer(s.ringCap)
 		s.ringBuffers[key] = rb
 	}
-	s.ringMu.Unlock()
+	rb.Push(entry)
 
-	rb.Push(types.LogEntry{
-		Source:    source,
-		NodeID:    nodeID,
-		Level:     level,
-		Message:   message,
-		Timestamp: time.Now(),
-	})
+	// Also route system lifecycle and status change logs to the central Ophanim general log stream
+	if source != "ophanim" || nodeID != "local" {
+		generalKey := "local:ophanim"
+		generalRb, gExists := s.ringBuffers[generalKey]
+		if !gExists {
+			generalRb = NewRingBuffer(s.ringCap)
+			s.ringBuffers[generalKey] = generalRb
+		}
+		if level == "WARN" || level == "ERROR" || source == "system" || strings.Contains(message, "ONLINE") || strings.Contains(message, "OFFLINE") || strings.Contains(message, "DISCONNECTED") {
+			generalRb.Push(entry)
+		}
+	}
 }
 
 // GetLogTail returns the recent logs for a source.
@@ -1097,7 +1112,10 @@ func (s *Storage) GetLogTail(source, nodeID string, n int) []types.LogEntry {
 	if nodeID != "" {
 		key := fmt.Sprintf("%s:%s", nodeID, source)
 		if rb, exists := s.ringBuffers[key]; exists {
-			return rb.GetTail(n)
+			entries := rb.GetTail(n)
+			if len(entries) > 0 {
+				return entries
+			}
 		}
 	}
 
